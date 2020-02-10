@@ -1,0 +1,24 @@
+---
+title: "Analysis for Manufacturing"
+author: "ekoh"
+date: '2020 2 10 '
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# 1. 자료의 요약
+```{r}
+car <- read.csv('autoparts.csv', header = T, fileEncoding = "UTF-8")
+head(car)
+str(car)
+```
+
+```{r}
+car <- car[car$prod_no == "45231-3B400",]
+car <- car[(car$c_thickness > 10)*(car$c_thickness < 50) == 1, ]
+
+str(car)
+```
+
