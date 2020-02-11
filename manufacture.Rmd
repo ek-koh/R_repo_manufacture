@@ -22,3 +22,49 @@ car <- car[(car$c_thickness > 10)*(car$c_thickness < 50) == 1, ]
 str(car)
 ```
 
+## 1.1. 변수들의 분포 파악
+```{r}
+# install.packages("psych")
+
+library(ggplot2)
+library(psych)
+```
+
+```{r}
+ggplot(car, aes(x=fix_time)) + geom_histogram(,colour = "black")
+boxplot(car$fix_time)
+```
+```{r}
+ggplot(car, aes(x=a_speed)) + geom_histogram(colour = "black")
+```
+```{r}
+ggplot(car, aes(x=b_speed)) + geom_histogram(colour="black")
+```
+```{r}
+ggplot(car, aes(x=mpa)) + geom_histogram(colour="black")
+```
+
+```{r}
+ggplot(car, aes(x=load_time)) + geom_histogram(colour = "black")
+```
+
+```{r}
+ggplot(car, aes(x=highpressure_time)) + geom_histogram(colour="black")
+```
+
+```{r}
+describe(car$c_thickness)
+
+ggplot(car, aes(x=c_thickness)) + geom_histogram(, fill="skyblue", colour="black", bins = 50)
+```
+- 평균 24.24이며 히스토그램에서 비교적 두꺼운 제품이 많이 발생함을 알 수 있음.
+- skewness가 1.71로 양수이므로 오른쪽으로 약간 긴 꼬리를 가지는 분포를 가짐을 알 수 있음.
+- 따라서, 불량 발생 시 두께가 얇은 쪽보다는 두꺼운 쪽으로 발생할 가능성이 높을 것으로 추측됨.
+
+## 1.2. 공정변수의 영향력 분석 - 각 공정변수의 수준에 따른 탕구두께의 분포
+
+
+
+
+
+
