@@ -138,4 +138,32 @@ corrplot.mixed(cor(car1), upper = "ellipse", lower = "number", tl.pos = "lt", bg
 - 실압력과 a속도간의 상관관계가 가장 강하게 나타났다.
 - 탕구두께의 경우, a속도, 실압력과 각각 가장 강한 선형적 연관성을 가지는 것으로 파악되며 두 변수 모두 음의 상관이다.
   - 즉, a속도나 실압력이 커질수록 탕구두께는 얇아지는 경향성이 있는 것으로 보인다.
+  
+# 2. 선형회귀모형(Linear Model)
+## 2.1. 선형회귀모형의 적합 및 변수선택
+```{r}
+lm1 <- lm(c_thickness~., data = car1)
+summary(lm1)
+```
+- 모든 변수들이 탕구두께에 유의미한 영향력을 가지고 있다.
+- 또한, 모든 변수들의 회귀계수 추정치가 음수이므로, 공정변수들이 커질 때 탕구두께가 얇아지는 경향이 있음을 알 수 있다.
+
+```{r}
+library(MASS)
+# install.packages("leaps")
+library(leaps)
+
+vs1 <- regsubsets(c_thickness~., data=car1)
+summary(vs1)
+```
+```{r}
+par(mfrow=c(1,3))
+plot(vs1, scale="Cp")
+plot(vs1, scale="adjr2")
+plot(vs1, scale="bic")
+```
+
+
+
+
 
