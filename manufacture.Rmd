@@ -73,7 +73,7 @@ ggplot(car1, aes(x=fixtime_bin, y=c_thickness), outlier.colour=NA) +
   geom_boxplot(aes(fill=fixtime_bin), outlier.colour = "purple") +
   geom_hline(yintercept=c(21,27), color="red") + ggtitle("탕구두께 vs. 고정시간")
 ```
-
+고정시간이 보통 수준보다 길면, 탕구두께의 변동도 커진다.
 ```{r}
 car1$as_bin <- as.factor((car1$a_speed > 0.659) + (car1$a_speed > 0.667) + 1)
 
@@ -83,5 +83,59 @@ ggplot(car1, aes(x=as_bin, c_thickness)) +
   geom_hline(yintercept = c(21,27), colour="red") +
   ggtitle("탕구두께 vs. a 속도")
 ```
+a속도의 경우 수준이 높아질수록 탕구두께가 전체적으로 얇아지는 경향성을 보인다.
 
+```{r}
+car1$bs_bin <- as.factor((car1$b_speed > 1.632) + (car1$b_speed > 1.732) + 1)
+
+ggplot(car1, aes(x=bs_bin, c_thickness)) +
+  geom_jitter(aes(colour=bs_bin), position = position_jitter(width = .3), alpha = 0.5) +
+  geom_boxplot(aes(fill=bs_bin), outlier.color = 'purple') +
+  geom_hline(yintercept = c(21,27), colour = 'red') +
+  ggtitle("탕구두께 vs. b속도")
+```
+b속도의 경우 뚜렷한 경향성은 관측되지 않는다.
+```{r}
+car1$mpa_bin <- as.factor((car1$mpa > 76.4) + (car1$mpa > 75.4) + 1)
+
+ggplot(car1, aes(x=mpa_bin, c_thickness)) +
+  geom_jitter(aes(colour=mpa_bin), position = position_jitter(width = .3), alpha = .5) +
+  geom_boxplot(aes(fill=mpa_bin), outlier.color = "purple") +
+  geom_hline(yintercept = c(21,27), colour="red") +
+  ggtitle("탕구두께 vs. 실압력") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+실압력의 경우 수준이 높아질수록 탕구두께가 전체적으로 얇아지는 경향성을 보인다.
+```{r}
+car1$loadtime_bin <- as.factor((car1$load_time > 20.1) + (car1$load_time > 20.3) + 1)
+
+ggplot(car1, aes(x=loadtime_bin, c_thickness)) +
+  geom_jitter(aes(colour=loadtime_bin), position = position_jitter(width=.3), alpha=.5) +
+  geom_boxplot(aes(fill=loadtime_bin), outlier.colour = "purple") +
+  geom_hline(yintercept = c(21, 27), color="red") +
+  ggtitle("탕구두께 vs. 하중시간") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+하중시간이 길수록 두께가 전반적으로 얇아지는 경향성이 관측되며, 특히 하중시간이 가장 높은 수준에 속할 때는 두께의 변동이 매우 큼을 알 수 있다.
+```{r}
+car1$hp_bin <- as.factor((car1$highpressure_time > 72) + (car1$highpressure_time > 69) + 1)
+
+ggplot(car1, aes(x=hp_bin, c_thickness)) +
+  geom_jitter(aes(color=hp_bin), position=position_jitter(width = .3), alpha=.5) +
+  geom_boxplot(aes(fill=hp_bin), outlier.color = "purple") +
+  geom_hline(yintercept = c(21,27), color="red") +
+  ggtitle("탕구두께 vs. 고압시간") +
+  theme(plot.title = element_text(hjust = .5))
+```
+고압시간의 경우 뚜렷한 경향성은 관측되지 않는다.
+
+## 1.3. 상관분석
+```{r}
+car1 <- car[,c(8,9,10,14,15,16,17)]
+library(corrplot)
+corrplot.mixed(cor(car1), upper = "ellipse", lower = "number", tl.pos = "lt", bg="gold")
+```
+- 실압력과 a속도간의 상관관계가 가장 강하게 나타났다.
+- 탕구두께의 경우, a속도, 실압력과 각각 가장 강한 선형적 연관성을 가지는 것으로 파악되며 두 변수 모두 음의 상관이다.
+  - 즉, a속도나 실압력이 커질수록 탕구두께는 얇아지는 경향성이 있는 것으로 보인다.
 
