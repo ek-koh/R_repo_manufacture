@@ -62,9 +62,26 @@ ggplot(car, aes(x=c_thickness)) + geom_histogram(, fill="skyblue", colour="black
 - 따라서, 불량 발생 시 두께가 얇은 쪽보다는 두꺼운 쪽으로 발생할 가능성이 높을 것으로 추측됨.
 
 ## 1.2. 공정변수의 영향력 분석 - 각 공정변수의 수준에 따른 탕구두께의 분포
+```{r}
+car1 <- car[,c(8,9,10,14,15,16,17)]
+```
+```{r}
+car1$fixtime_bin <- as.factor((car1$fix_time > 81.3) + (car1$fix_time > 81.1) + 1)
 
+ggplot(car1, aes(x=fixtime_bin, y=c_thickness), outlier.colour=NA) +
+  geom_jitter(aes(colour = fixtime_bin), position = position_jitter(width = .3), alpha=0.5) +
+  geom_boxplot(aes(fill=fixtime_bin), outlier.colour = "purple") +
+  geom_hline(yintercept=c(21,27), color="red") + ggtitle("탕구두께 vs. 고정시간")
+```
 
+```{r}
+car1$as_bin <- as.factor((car1$a_speed > 0.659) + (car1$a_speed > 0.667) + 1)
 
-
+ggplot(car1, aes(x=as_bin, c_thickness)) +
+  geom_jitter(aes(colour=as_bin), position=position_jitter(width = 0.3), alpha=0.5) +
+  geom_boxplot(aes(fill=as_bin), outlier.color = "purple") +
+  geom_hline(yintercept = c(21,27), colour="red") +
+  ggtitle("탕구두께 vs. a 속도")
+```
 
 
