@@ -162,6 +162,88 @@ plot(vs1, scale="Cp")
 plot(vs1, scale="adjr2")
 plot(vs1, scale="bic")
 ```
+변수 1개만 모형에 포함하는 경우 실압력(mpa)가 선택된다.
+- mpa가 가장 영향력이 큰 공정변수수
+변수 2개만 모형에 포함하는 경우 실압력(mpa)과 b속도(b_speed)가 선택된다.
+- 탕구두께와 개별적인 상관계수를 계산했을 때와 다소 다른 결과
+  - mpa, a_speed가 가장 큰 상관관계
+- 최적의 모형은 변수 6개를 모두 고려하는 것
+
+
+```{r}
+vs2 <- stepAIC(lm1, direction = "both")
+```
+```{r}
+vs2$anova
+```
+최적의 모형은 변수 6개를 모두 고려하는 것
+
+```{r}
+library(car)
+par(mfrow=c(2,2))
+plot(lm1)
+
+vif(lm1)
+```
+- 오차항에 대한 정규성 가정이 의심되며, 영향점(influential point)도 존재하는 것으로 파악
+  - 공정변수들이 그룹화되는 경향, 극단적인 값들 때문으로 보임
+- 분산팽창계수가 전반적으로 4를 넘지 않으므로 다중공선성이 심각하게 존재하지 않는다.
+- 정리하면, 선형모형 가정 자체에 의심할 만한 여지가 있으며, 공정변수들이 두 그룹으로 완전히 분리되어 나타나는 경우가 많았던 점을 고려할 때 선형회귀 모형의 성능이 매우 뛰어나다고 보기 어렵다.
+
+## 2.2. 축소추정법
+```{r}
+# install.packages("glmnet")
+library(glmnet)
+set.seed(1)
+ind.train <- sample(1:nrow(car1), nrow(car1)*0.7)
+car.train <- car1[ind.train,]
+car.test <- car1[-ind.train,]
+X <- as.matrix(car.train[,1:6])
+Y <- as.matrix(car.train[,7])
+nX <- as.matrix(car.test[,1:6])
+nY <- as.matrix(car.test[,7])
+```
+
+### 2.2.1. 능형(Ridge)회귀
+```{r}
+cv.ridge <- cv.glmnet(X,Y,alpha=0, lambda=10^seq(10,-2, length=100))
+
+plot(cv.ridge)
+```
+
+```{r}
+ridge.pred <- predict(glmnet(X,Y,alpha=0,lambda=cv.ridge$lambda.min),newx=nX)
+mean((nY - ridge.pred)^2)
+
+coef(glmnet(X,Y,alpha=0,lambda=cv.ridge$lambda.min))
+```
+- 조절모수의 값은 작은 쪽에서 형성됨
+- 예측오차는 3.407769
+
+### 2.2.2. LASSO
+```{r}
+cv.lasso <- cv.glmnet(X,Y, alpha=1, lambda = 10^seq(10,-2,length=100))
+plot(cv.lasso)
+```
+```{r}
+lasso.pred <- predict(glmnet(X,Y,alpha=1, lambda = cv.lasso$lambda.min),newx=nX)
+mean((nY-lasso.pred)^2)
+
+coef(glmnet(X,Y,alpha = 1,lambda = cv.lasso$lambda.min))
+```
+- 조절모수의 값은 작은 쪽에서 형성된다.
+- 실제 선택된 값은 0.01로 현재 설정한 값들 중 최소에 해당하는 값이다.
+- 추정된 값 중 0은 없다. 즉, 모형에서 빠지는 변수는 없다.
+- 예측오차는 3.252521이다.
+
+```{r}
+lm.pred <- predict(lm(c_thickness~., data=car.train), newdata=car.test[,1:6])
+mean((car.test[,7] -lm.pred)^2)
+```
+- 축소추정법을 적용하지 않은 선형회귀모형의 경우 예측오차가 3.505718이다.
+
+
+
 
 
 
